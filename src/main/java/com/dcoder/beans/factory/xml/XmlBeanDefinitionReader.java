@@ -20,6 +20,8 @@ public class XmlBeanDefinitionReader {
 
     public static final String CLASS_ATTRIBUTE = "class";
 
+    public static final String SCOPE_ATTRIBUTE = "scope";
+
     public XmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
         this.registry = registry;
     }
@@ -38,6 +40,10 @@ public class XmlBeanDefinitionReader {
                 String id = ele.attributeValue(ID_ATTRIBUTE);
                 String beanClassName = ele.attributeValue(CLASS_ATTRIBUTE);
                 BeanDefinition bd = new GenericBeanDefinition(id, beanClassName);
+                //获取xml文件中设置的scope值
+                if(ele.attributeValue(SCOPE_ATTRIBUTE) != null) {
+                    bd.setScope(ele.attributeValue(SCOPE_ATTRIBUTE));
+                }
                 this.registry.registerBeanDefinition(id, bd);
             }
         } catch (Exception e) {

@@ -8,7 +8,8 @@ import com.dcoder.utils.ClassUtils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultBeanFactory implements ConfigurableBeanFactory,BeanDefinitionRegistry {
+public class DefaultBeanFactory extends DefaultSingletonBeanRegistry
+        implements ConfigurableBeanFactory,BeanDefinitionRegistry {
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>(64);
     private ClassLoader beanClassLoader;
 
@@ -32,6 +33,21 @@ public class DefaultBeanFactory implements ConfigurableBeanFactory,BeanDefinitio
         if (bd == null) {
             throw new BeanCreationException("Bean definition does not exist");
         }
+
+        if(bd.isSingleton()) {
+            Object bean = this.getSingleton(beanId);
+            if(bean == null) {
+                bean = creatBean(bd);
+                this.registerSingleton(beanId, bean);
+            }
+
+            return bean;
+        }
+
+        return creatBean(bd);
+    }
+
+    private Object creatBean(BeanDefinition bd) {
         ClassLoader cl = this.getBeanClassLoader();
         String beanClassName = bd.getBeanCLassName();
         try {

@@ -9,8 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class BeanFactoryTest {
     DefaultBeanFactory factory = null;
@@ -26,6 +25,11 @@ public class BeanFactoryTest {
     public void testGetBean() {
         reader.loadBeanDefinitions(new ClassPathResource("petstore-v1.xml"));
         BeanDefinition bd = factory.getBeanDefinition("petStore");
+
+        assertTrue(bd.isSingleton());
+        assertFalse(bd.isPrototype());
+        assertEquals(BeanDefinition.SCOPE_DEFAULT,bd.getScope());
+
         assertEquals("com.dcoder.service.v1.PetStoreService", bd.getBeanCLassName());
 
         PetStoreService petStore = (PetStoreService) factory.getBean("petStore");
