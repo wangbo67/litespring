@@ -2,14 +2,15 @@ package com.dcoder.beans.factory.support;
 
 import com.dcoder.beans.BeanDefinition;
 import com.dcoder.beans.factory.BeanCreationException;
-import com.dcoder.beans.factory.BeanFactory;
+import com.dcoder.beans.factory.config.ConfigurableBeanFactory;
 import com.dcoder.utils.ClassUtils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultBeanFactory implements BeanFactory,BeanDefinitionRegistry {
+public class DefaultBeanFactory implements ConfigurableBeanFactory,BeanDefinitionRegistry {
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>(64);
+    private ClassLoader beanClassLoader;
 
     public DefaultBeanFactory() {
 
@@ -31,7 +32,7 @@ public class DefaultBeanFactory implements BeanFactory,BeanDefinitionRegistry {
         if (bd == null) {
             throw new BeanCreationException("Bean definition does not exist");
         }
-        ClassLoader cl = ClassUtils.getDefaultClassLoader();
+        ClassLoader cl = this.getBeanClassLoader();
         String beanClassName = bd.getBeanCLassName();
         try {
             Class<?> clz = cl.loadClass(beanClassName);
@@ -39,5 +40,15 @@ public class DefaultBeanFactory implements BeanFactory,BeanDefinitionRegistry {
         } catch (Exception e) {
             throw new BeanCreationException("create bean for " + beanClassName + " failed", e);
         }
+    }
+
+    @Override
+    public void setBeanClassLoader(ClassLoader beanClassLoader) {
+        this.beanClassLoader = beanClassLoader;
+    }
+
+    @Override
+    public ClassLoader getBeanClassLoader() {
+        return (this.beanClassLoader != null ? this.beanClassLoader : ClassUtils.getDefaultClassLoader());
     }
 }
