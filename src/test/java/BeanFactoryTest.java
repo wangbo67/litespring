@@ -1,18 +1,29 @@
 import com.dcoder.beans.BeanDefinition;
 import com.dcoder.beans.factory.BeanCreationException;
 import com.dcoder.beans.factory.BeanDefinitionStoreException;
-import com.dcoder.beans.factory.BeanFactory;
 import com.dcoder.beans.factory.support.DefaultBeanFactory;
+import com.dcoder.beans.factory.xml.XmlBeanDefinitionReader;
 import com.dcoder.service.v1.PetStoreService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class BeanFactoryTest {
+    DefaultBeanFactory factory = null;
+    XmlBeanDefinitionReader reader = null;
+
+    @Before
+    public void setUp() {
+        factory = new DefaultBeanFactory();
+        reader = new XmlBeanDefinitionReader(factory);
+    }
+
     @Test
     public void testGetBean() {
-        BeanFactory factory = new DefaultBeanFactory("petstore-v1.xml");
+        reader.loadBeanDefinitions("petstore-v1.xml");
         BeanDefinition bd = factory.getBeanDefinition("petStore");
         assertEquals("com.dcoder.service.v1.PetStoreService", bd.getBeanCLassName());
 
@@ -22,7 +33,7 @@ public class BeanFactoryTest {
 
     @Test
     public void testInvalidBean() {
-        BeanFactory factory = new DefaultBeanFactory("petstore-v1.xml");
+        reader.loadBeanDefinitions("petstore-v1.xml");
         try {
             factory.getBean("invalidBean");
         } catch (BeanCreationException e) {
@@ -35,7 +46,7 @@ public class BeanFactoryTest {
     @Test
     public void testInvalidXML() {
         try {
-            new DefaultBeanFactory("xxxx.xml");
+            reader.loadBeanDefinitions("xxx.xml");
         } catch (BeanDefinitionStoreException e) {
             return;
         }
